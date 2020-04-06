@@ -4,9 +4,9 @@
 	{
 	    // 设置默认小数位
 	    bcscale(2);
-	    $data               = [];
+
 	    $data['header_box'] = [
-	        'title' => '首页'
+	        'title' => lang('home_page')
 	    ];
 
 	    // 活动列表
