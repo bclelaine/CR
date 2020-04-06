@@ -14,92 +14,9 @@
 	    // 活动列表
 	    $act_list = $this->getActivityList();
 
-	    // 待办事项 默认数据
-	    $act_lists = [
-	        'to_do' => [
-	            'title' => lang('to_do'),
-	            'data'  => [
-	                [
-	                    'title' => lang('activities_to_be_audited'),
-	                    'value' => 0
-	                ]
-	            ],
-	            'list'  => []
-	        ],
-	        'on_go' => [
-	            'title' => lang('marketing_activities'),
-	            'data'  => [
-	                1 => [
-	                    'type'   => 1,
-	                    'title'  => lang('marketing_activities'), // 精准营销
-	                    'icon'   => 'icon-huiyuanyingxiao-xuanzhong',
-	                    'value'  => 0,
-	                    'url'    => 'member-marketing/activity-management',
-	                    'params' => [
-	                        'field' => 'act_status',
-	                        'value' => 5,
-	                        'type'  => static::FILTER_TYPE
-	                    ]
-	                ],
-	                2 => [
-	                    'type'   => 2,
-	                    'title'  => lang('integral_ech_coupons'), // 积分兑券
-	                    'icon'   => 'icon-jifenduiquan',
-	                    'value'  => 0,
-	                    'url'    => 'member-marketing/integral-coupon',
-	                    'params' => [
-	                        'field' => 'status',
-	                        'value' => 5,
-	                        'type'  => static::FILTER_TYPE
-	                    ]
-	                ],
-	                3 => [
-	                    'type'   => 3,
-	                    'title'  => lang('sweep_send_coup'), // 扫码领券
-	                    'icon'   => 'icon-saomalingquan',
-	                    'value'  => 0,
-	                    'url'    => 'member-marketing/scan-code',
-	                    'params' => [
-	                        'field' => 'status',
-	                        'value' => 5,
-	                        'type'  => static::FILTER_TYPE
-	                    ]
-	                ],
-	                4 => [
-	                    'type'   => 4,
-	                    'title'  => lang('shop_send_coupon'), // 门店送券
-	                    'icon'   => 'icon-mendiansongquan',
-	                    'value'  => 0,
-	                    'url'    => 'member-marketing/shop-coupon',
-	                    'params' => [
-	                        'field' => 'act_status',
-	                        'value' => 3,
-	                        'type'  => static::FILTER_TYPE
-	                    ]
-	                ],
-	                5 => [
-	                    'type'   => 5,
-	                    'title'  => lang('crash_rp'), // 现金红包
-	                    'icon'   => 'icon-xianjinhongbao',
-	                    'value'  => 0,
-	                    'url'    => 'member-marketing/cash-redpacket',
-	                    'params' => [
-	                        'field' => 'status',
-	                        'value' => 5,
-	                        'type'  => static::FILTER_TYPE
-	                    ]
-	                ],
-	                7 => [
-	                    'type'  => 7,
-	                    'title' => lang('gift_card'), // 礼品卡
-	                    'icon'  => 'icon-lipinqia',
-	                    'value' => 0,
-	                    'url'   => 'member-marketing/giftcard-management',
-	                    'val'   => 3
-	                ]
-	            ]
-	        ]
-	    ];
+	    // 待办事项、营销活动默认数据
+	    $act_lists = $this->getActivityDefaultData();
+
 	    if (!empty($act_list)) {
 	        foreach ($act_list as $k => $item) {
 	            if ($item['status'] == 2) {
@@ -360,3 +277,93 @@
             ->where($where)
             ->select() ?? [];
     }
+
+    // 获取活动默认数据
+	public function getActivityDefaultData()
+	{
+	    return [
+	        'to_do' => [
+	            'title' => lang('to_do'),
+	            'data'  => [
+	                [
+	                    'title' => lang('activities_to_be_audited'),
+	                    'value' => 0
+	                ]
+	            ],
+	            'list'  => []
+	        ],
+	        'on_go' => [
+	            'title' => lang('marketing_activities'),
+	            'data'  => [
+	                1 => [
+	                    'type'   => 1,
+	                    'title'  => lang('marketing_activities'), // 精准营销
+	                    'icon'   => 'icon-huiyuanyingxiao-xuanzhong',
+	                    'value'  => 0,
+	                    'url'    => 'member-marketing/activity-management',
+	                    'params' => [
+	                        'field' => 'act_status',
+	                        'value' => 5,
+	                        'type'  => static::FILTER_TYPE
+	                    ]
+	                ],
+	                2 => [
+	                    'type'   => 2,
+	                    'title'  => lang('integral_ech_coupons'), // 积分兑券
+	                    'icon'   => 'icon-jifenduiquan',
+	                    'value'  => 0,
+	                    'url'    => 'member-marketing/integral-coupon',
+	                    'params' => [
+	                        'field' => 'status',
+	                        'value' => 5,
+	                        'type'  => static::FILTER_TYPE
+	                    ]
+	                ],
+	                3 => [
+	                    'type'   => 3,
+	                    'title'  => lang('sweep_send_coup'), // 扫码领券
+	                    'icon'   => 'icon-saomalingquan',
+	                    'value'  => 0,
+	                    'url'    => 'member-marketing/scan-code',
+	                    'params' => [
+	                        'field' => 'status',
+	                        'value' => 5,
+	                        'type'  => static::FILTER_TYPE
+	                    ]
+	                ],
+	                4 => [
+	                    'type'   => 4,
+	                    'title'  => lang('shop_send_coupon'), // 门店送券
+	                    'icon'   => 'icon-mendiansongquan',
+	                    'value'  => 0,
+	                    'url'    => 'member-marketing/shop-coupon',
+	                    'params' => [
+	                        'field' => 'act_status',
+	                        'value' => 3,
+	                        'type'  => static::FILTER_TYPE
+	                    ]
+	                ],
+	                5 => [
+	                    'type'   => 5,
+	                    'title'  => lang('crash_rp'), // 现金红包
+	                    'icon'   => 'icon-xianjinhongbao',
+	                    'value'  => 0,
+	                    'url'    => 'member-marketing/cash-redpacket',
+	                    'params' => [
+	                        'field' => 'status',
+	                        'value' => 5,
+	                        'type'  => static::FILTER_TYPE
+	                    ]
+	                ],
+	                7 => [
+	                    'type'  => 7,
+	                    'title' => lang('gift_card'), // 礼品卡
+	                    'icon'  => 'icon-lipinqia',
+	                    'value' => 0,
+	                    'url'   => 'member-marketing/giftcard-management',
+	                    'val'   => 3
+	                ]
+	            ]
+	        ]
+	    ];
+	}
