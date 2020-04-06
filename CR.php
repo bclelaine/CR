@@ -11,93 +11,9 @@
 	        'title' => '首页'
 	    ];
 
-	    // 1、活动情况
-	    $actions = Config::get('market_actions_map');
+	    // 活动列表
+	    $act_list = $this->getActivityList();
 
-	    $where = [];
-	    if (limited_data()) {
-	        // 获取当前登录用户所属组织下 全部的账号 id
-	        $allowUserId = get_user_ids_by_current_user_org();
-
-	        $where['creator'] = ['in', $allowUserId];
-	    }
-	    // 精准营销
-	    $where['act_status'] = [
-	        'in',
-	        [
-	            2,
-	            5
-	        ]
-	    ];
-	    $market_list         = Db::table("{$actions[1]}")->field("'营销活动' title,1 type,act_status status,'member-marketing/activity-management' url,
-	        'act_type' param,act_auditor_id auditor,creator")
-	                             ->where($where)
-	                             ->select();
-	    // 积分兑券
-	    unset($where['act_status']);
-	    $where['status'] = [
-	        'in',
-	        [
-	            2,
-	            5
-	        ]
-	    ];
-	    $ech_coup_list   = Db::table("{$actions[2]}")->field("'积分兑券' title,2 type,status,'member-marketing/integral-coupon' url,
-	        'act_type' param,auditor,creator")
-	                         ->where($where)
-	                         ->select();
-	    // 扫码领券
-	    $where['status'] = [
-	        'in',
-	        [
-	            2,
-	            5
-	        ]
-	    ];
-	    unset($where['act_status']);
-	    $sweep_list = Db::table("{$actions[4]}")->field("'扫码领券' title,3 type,status,'member-marketing/scan-code' url,
-	        'act_type' param,auditor,creator")
-	                    ->where($where)
-	                    ->select();
-	    // 门店送券
-	    if (isset($where['creator'])) {
-	        $where['creater'] = $where['creator'];
-
-	        unset($where['creator']);
-	    }
-	    unset($where['status']);
-
-	    $where['act_status'] = [
-	        'in',
-	        [
-	            2,
-	            3
-	        ]
-	    ];
-	    $shop_send_list      = Db::table("{$actions[5]}")->field("'门店送券' title,4 type,act_status status,'member-marketing/shop-coupon' url,
-	        'act_type' param,auditor,creater creator")
-	                             ->where($where)
-	                             ->select();
-	    // 现金红包 [不分数据权限]
-	    if (isset($where['creater'])) {
-	        // $where['creator'] = $where['creater'];
-	        unset($where['creater']);
-	    }
-	    unset($where['act_status']);
-	    $where['status'] = [
-	        'in',
-	        [
-	            2,
-	            5
-	        ]
-	    ];
-	    $crash_list      = Db::table("{$actions[6]}")->field("'现金红包' title,5 type,status,'member-marketing/cash-redpacket' url,
-	        'act_type' param,auditor,creator")
-	                         ->where($where)
-	                         ->select();
-
-	    // 活动数据
-	    $act_list = array_merge($market_list, $ech_coup_list, $sweep_list, $shop_send_list, $crash_list);
 	    // 待办事项 默认数据
 	    $act_lists = [
 	        'to_do' => [
@@ -334,4 +250,94 @@
 	    $data['attrs']    = [];
 
 	    return $data;
+	}
+
+	// 获取活动列表数据
+	public function getActivityList()
+	{
+	    $actions = Config::get('market_actions_map');
+
+	    $where = [];
+	    if (limited_data()) {
+	        // 获取当前登录用户所属组织下 全部的账号 id
+	        $allowUserId = get_user_ids_by_current_user_org();
+
+	        $where['creator'] = ['in', $allowUserId];
+	    }
+	    // 精准营销
+	    $where['act_status'] = [
+	        'in',
+	        [
+	            2,
+	            5
+	        ]
+	    ];
+	    $market_list         = Db::table("{$actions[1]}")->field("'营销活动' title,1 type,act_status status,'member-marketing/activity-management' url,
+	        'act_type' param,act_auditor_id auditor,creator")
+	                             ->where($where)
+	                             ->select();
+	    // 积分兑券
+	    unset($where['act_status']);
+	    $where['status'] = [
+	        'in',
+	        [
+	            2,
+	            5
+	        ]
+	    ];
+	    $ech_coup_list   = Db::table("{$actions[2]}")->field("'积分兑券' title,2 type,status,'member-marketing/integral-coupon' url,
+	        'act_type' param,auditor,creator")
+	                         ->where($where)
+	                         ->select();
+	    // 扫码领券
+	    $where['status'] = [
+	        'in',
+	        [
+	            2,
+	            5
+	        ]
+	    ];
+	    unset($where['act_status']);
+	    $sweep_list = Db::table("{$actions[4]}")->field("'扫码领券' title,3 type,status,'member-marketing/scan-code' url,
+	        'act_type' param,auditor,creator")
+	                    ->where($where)
+	                    ->select();
+	    // 门店送券
+	    if (isset($where['creator'])) {
+	        $where['creater'] = $where['creator'];
+
+	        unset($where['creator']);
+	    }
+	    unset($where['status']);
+
+	    $where['act_status'] = [
+	        'in',
+	        [
+	            2,
+	            3
+	        ]
+	    ];
+	    $shop_send_list      = Db::table("{$actions[5]}")->field("'门店送券' title,4 type,act_status status,'member-marketing/shop-coupon' url,
+	        'act_type' param,auditor,creater creator")
+	                             ->where($where)
+	                             ->select();
+	    // 现金红包 [不分数据权限]
+	    if (isset($where['creater'])) {
+	        // $where['creator'] = $where['creater'];
+	        unset($where['creater']);
+	    }
+	    unset($where['act_status']);
+	    $where['status'] = [
+	        'in',
+	        [
+	            2,
+	            5
+	        ]
+	    ];
+	    $crash_list      = Db::table("{$actions[6]}")->field("'现金红包' title,5 type,status,'member-marketing/cash-redpacket' url,
+	        'act_type' param,auditor,creator")
+	                         ->where($where)
+	                         ->select();
+
+	    return array_merge($market_list, $ech_coup_list, $sweep_list, $shop_send_list, $crash_list);
 	}
