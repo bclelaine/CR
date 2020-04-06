@@ -23,78 +23,8 @@
 	    $merge_data['to_do']['data'][0]['value'] = array_sum(array_column($merge_data['to_do']['list'], 'value'));
 	    array_multisort($merge_data['on_go']['data']);
 
-	    // 公共时间范围
-	    $start_day = date('Y-m-d 00:00:00', strtotime("-30 day")); // 开始时间
-	    $end_day   = date('Y-m-d 23:59:59', strtotime('-1 day')); // 结束时间
-
-	    // 3、收入情况 需要整理一下怎么计算的
-	    // 3.1 当月收入总览
-	    // 当前查看视角条件获取、补充
-
-	    // 最近30天
-	    $service_income = new \app\analysis\model\OverallIncomeAnalysis();
-	    $last_income = $service_income->getIncomeTotal($start_day, $end_day);
-
-	    // 同期
-	    $year_start  = date('Y-m-d H:i:s', strtotime("{$start_day} -1 year"));
-	    $year_end    = date('Y-m-d H:i:s', strtotime("{$end_day} -1 year"));
-	    $year_income = $service_income->getIncomeTotal($year_start, $year_end);
-	    // 上期
-	    $before_start  = date('Y-m-d H:i:s', strtotime("{$start_day} -30 day"));
-	    $before_end    = date('Y-m-d H:i:s', strtotime("{$end_day} -30 day"));
-	    $before_income = $service_income->getIncomeTotal($before_start, $before_end);
-	    // 默认数据
-	    $income_info      = [
-	        [
-	            'source' => 1,
-	            'field'  => 'order_num',
-	            'title'  => '订单笔数（笔）',
-	            'value'  => $last_income['order_num'],
-	            'tip1'   => '同期',
-	            'value1' => $year_income['order_num'],
-	            'tip2'   => '上期',
-	            'value2' => $before_income['order_num'],
-	        ],
-	        [
-	            'source' => 2,
-	            'field'  => 'custom_price',
-	            'title'  => '客单价（元）',
-	            'value'  => $last_income['custom_price'],
-	            'tip1'   => '同期',
-	            'value1' => $year_income['custom_price'],
-	            'tip2'   => '上期',
-	            'value2' => $before_income['custom_price'],
-	        ],
-	        [
-	            'source' => 3,
-	            'field'  => 'custom_trade',
-	            'title'  => '客单件（件）',
-	            'value'  => $last_income['custom_trade'],
-	            'tip1'   => '同期',
-	            'value1' => $year_income['custom_trade'],
-	            'tip2'   => '上期',
-	            'value2' => $before_income['custom_trade'],
-	        ],
-	        [
-	            'source' => 4,
-	            'field'  => 'goods_price',
-	            'title'  => '件单价（元）',
-	            'value'  => $last_income['goods_price'],
-	            'tip1'   => '同期',
-	            'value1' => $year_income['goods_price'],
-	            'tip2'   => '上期',
-	            'value2' => $before_income['goods_price'],
-	        ],
-	    ];
-	    $income           = [
-	        'title'      => lang('income_condition') . '（近30天）',
-	        'select_tab' => [
-	            'type'  => '',
-	            'field' => '',
-	            'data'  => $income_info
-	        ]
-	    ];
-	    $income['echars'] = [];
+	    // 收入情况
+	    $income = $this->getIncomeData();
 
 	    $data['body_box'] = array_merge($merge_data, [
 	        'income_condition' => $income,
@@ -308,7 +238,7 @@
 	 *
 	 * 逻辑拆分
 	 * 修改变量名称（之前的太相似，可读性比较差）
-	 * 多条件判断时增加解释性变量
+	 * 多条件时增加解释性变量
 	 * 数据库字段数字转化成常量
 	 * 代码执行效率
 	 */
@@ -354,4 +284,81 @@
 	    }
 
 	    return $default_data;
+	}
+
+	// 获取首页收入数据
+	public function getIncomeData()
+	{
+	    // 公共时间范围
+	    $start_day = date('Y-m-d 00:00:00', strtotime("-30 day")); // 开始时间
+	    $end_day   = date('Y-m-d 23:59:59', strtotime('-1 day')); // 结束时间
+
+	    // 最近30天
+	    $service_income = new \app\analysis\model\OverallIncomeAnalysis();
+	    $last_income = $service_income->getIncomeTotal($start_day, $end_day);
+
+	    // 同期
+	    $year_start  = date('Y-m-d H:i:s', strtotime("{$start_day} -1 year"));
+	    $year_end    = date('Y-m-d H:i:s', strtotime("{$end_day} -1 year"));
+	    $year_income = $service_income->getIncomeTotal($year_start, $year_end);
+
+	    // 上期
+	    $before_start  = date('Y-m-d H:i:s', strtotime("{$start_day} -30 day"));
+	    $before_end    = date('Y-m-d H:i:s', strtotime("{$end_day} -30 day"));
+	    $before_income = $service_income->getIncomeTotal($before_start, $before_end);
+
+	    // 默认数据
+	    $income_info = [
+	        [
+	            'source' => 1,
+	            'field'  => 'order_num',
+	            'title'  => '订单笔数（笔）',
+	            'value'  => $last_income['order_num'],
+	            'tip1'   => '同期',
+	            'value1' => $year_income['order_num'],
+	            'tip2'   => '上期',
+	            'value2' => $before_income['order_num'],
+	        ],
+	        [
+	            'source' => 2,
+	            'field'  => 'custom_price',
+	            'title'  => '客单价（元）',
+	            'value'  => $last_income['custom_price'],
+	            'tip1'   => '同期',
+	            'value1' => $year_income['custom_price'],
+	            'tip2'   => '上期',
+	            'value2' => $before_income['custom_price'],
+	        ],
+	        [
+	            'source' => 3,
+	            'field'  => 'custom_trade',
+	            'title'  => '客单件（件）',
+	            'value'  => $last_income['custom_trade'],
+	            'tip1'   => '同期',
+	            'value1' => $year_income['custom_trade'],
+	            'tip2'   => '上期',
+	            'value2' => $before_income['custom_trade'],
+	        ],
+	        [
+	            'source' => 4,
+	            'field'  => 'goods_price',
+	            'title'  => '件单价（元）',
+	            'value'  => $last_income['goods_price'],
+	            'tip1'   => '同期',
+	            'value1' => $year_income['goods_price'],
+	            'tip2'   => '上期',
+	            'value2' => $before_income['goods_price'],
+	        ],
+	    ];
+	    $income           = [
+	        'title'      => lang('income_condition') . '（近30天）',
+	        'select_tab' => [
+	            'type'  => '',
+	            'field' => '',
+	            'data'  => $income_info
+	        ]
+	    ];
+	    $income['echars'] = [];
+
+	    return $income;
 	}
