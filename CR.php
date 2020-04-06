@@ -13,11 +13,11 @@
 	    $act_list = $this->getActivityList();
 
 	    // 待办事项、营销活动默认数据
-	    $act_lists = $this->getActivityDefaultData();
+	    $default_data = $this->getActivityDefaultData();
 
-	    $merge_data = $this->getActivityMergeData($act_list, $act_lists);
+	    $merge_data = $this->getActivityMergeData($act_list, $default_data);
 	    unset($act_list);
-	    unset($act_lists);
+	    unset($default_data);
 
 	    array_multisort($merge_data['to_do']['list']);
 	    $merge_data['to_do']['data'][0]['value'] = array_sum(array_column($merge_data['to_do']['list'], 'value'));
@@ -306,79 +306,52 @@
 	/**
 	 * 合并所有活动数据（待审核活动、营销活动）
 	 *
-	 * 使用公共函数获取值（user_id）
-	 * 减少多层嵌套
-	 * 调整执行顺序，增加可读性
+	 * 逻辑拆分
+	 * 修改变量名称（之前的太相似，可读性比较差）
+	 * 多条件判断时增加解释性变量
+	 * 数据库字段数字转化成常量
+	 * 代码执行效率
 	 */
-	public function getActivityMergeData($act_list, $act_lists)
+	public function getActivityMergeData($act_list, $default_data)
 	{
-		$user_id = get_user_id();
+		$to_do = []; // 待审核活动
+	    $on_go = []; // 营销活动
 
-		if (!empty($act_list)) {
-	        foreach ($act_list as $k => $item) {
-	        	if ($item['status'] != 2) {
-	        		$num[$item['type']][]                               = $item;
-	                $act_lists['on_go']['data'][$item['type']]['value'] = count($num[$item['type']]);
-	                $act_lists['on_go']['data'][$item['type']]['val']   = 1;
+		// 只有管理员可以审核，只有管理员账号可以看到审核活动
+	    $user_id    = get_user_id();
+	    $limit_data = not_limited_data();
 
-	                continue;
-	        	}
+	    foreach ($act_list as $k => $item) {
+	        if ($item['status'] == ACTIVITY_STATUS_WAIT_REVIEW) {
+	            $limit = $limit_data && $item['auditor'] == $user_id;
 
-                if ($item['auditor'] != $user_id) {
-                    continue;
-                }
+	            if ($limit) {
+	                $to_do[$item['type']][] = $item;
+	            }
 
-                switch ($item['type']) {
-                    case 1:
-                        $markets[]                                 = $item;
-                        $act_lists['to_do']['list'][$item['type']] = [
-                            'title' => $item['title'],
-                            'value' => isset($markets) ? count($markets) : 0,
-                            'url'   => $item['url'],
-                            'val'   => 2
-                        ];
-                        break;
-                    case 2:
-                        $ech_coup[]                                = $item;
-                        $act_lists['to_do']['list'][$item['type']] = [
-                            'title' => $item['title'],
-                            'value' => isset($ech_coup) ? count($ech_coup) : 0,
-                            'url'   => $item['url'],
-                            'val'   => 2
-                        ];
-                        break;
-                    case 3:
-                        $sweep_coup[]                              = $item;
-                        $act_lists['to_do']['list'][$item['type']] = [
-                            'title' => $item['title'],
-                            'value' => isset($sweep_coup) ? count($sweep_coup) : 0,
-                            'url'   => $item['url'],
-                            'val'   => 2
-                        ];
-                        break;
-                    case 4:
-                        $shop_coup[]                               = $item;
-                        $act_lists['to_do']['list'][$item['type']] = [
-                            'title' => $item['title'],
-                            'value' => isset($shop_coup) ? count($shop_coup) : 0,
-                            'url'   => $item['url'],
-                            'val'   => 2
-                        ];
-                        break;
-                    case 5:
-                        $crashes[]                                 = $item;
-                        $act_lists['to_do']['list'][$item['type']] = [
-                            'title' => $item['title'],
-                            'value' => isset($crashes) ? count($crashes) : 0,
-                            'url'   => $item['url'],
-                            'val'   => 2
-                        ];
-                        break;
-                    default:
-                        break;
-                }
+	            continue;
 	        }
-    	}
 
-        return $act_lists;
+	        $on_go[$item['type']][] = $item;
+	    }
+
+	    if (!empty($to_do)) {
+	        foreach ($to_do as $type => $item) {
+	            $default_data['to_do']['list'][$type] = [
+	                'title' => $to_do[$type][0]['title'],
+	                'value' => count($to_do[$type] ?? []),
+	                'url'   => $to_do[$type][0]['url'],
+	                'val'   => 2
+	            ];
+	        }
+	    }
+
+	    if (!empty($on_go)) {
+	        foreach ($on_go as $type => $item) {
+	            $default_data['on_go']['data'][$type]['value'] = count($on_go[$type] ?? []);
+	            $default_data['on_go']['data'][$type]['val']   = 1;
+	        }
+	    }
+
+	    return $default_data;
 	}
