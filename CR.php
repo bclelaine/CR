@@ -303,76 +303,80 @@
 	    ];
 	}
 
-	// 合并所有活动数据（待审核活动、营销活动）
+	/**
+	 * 合并所有活动数据（待审核活动、营销活动）
+	 *
+	 * 使用公共函数获取值（user_id）
+	 * 减少多层嵌套
+	 * 调整执行顺序，增加可读性
+	 */
 	public function getActivityMergeData($act_list, $act_lists)
 	{
-	    $user_id = static::$user['uid'];
+		$user_id = get_user_id();
 
 		if (!empty($act_list)) {
 	        foreach ($act_list as $k => $item) {
-	            if ($item['status'] == 2) {
-	                if ($item['auditor'] != $user_id) {
-	                    continue;
-	                }
-	                switch ($item['type']) {
-	                    case 1:
-	                        $markets[]                                 = $item;
-	                        $act_lists['to_do']['list'][$item['type']] = [
-	                            'title' => $item['title'],
-	                            'value' => isset($markets) ? count($markets) : 0,
-	                            'url'   => $item['url'],
-	                            'val'   => 2
-	                        ];
-	                        break;
-	                    case 2:
-	                        $ech_coup[]                                = $item;
-	                        $act_lists['to_do']['list'][$item['type']] = [
-	                            'title' => $item['title'],
-	                            'value' => isset($ech_coup) ? count($ech_coup) : 0,
-	                            'url'   => $item['url'],
-	                            'val'   => 2
-	                        ];
-	                        break;
-	                    case 3:
-	                        $sweep_coup[]                              = $item;
-	                        $act_lists['to_do']['list'][$item['type']] = [
-	                            'title' => $item['title'],
-	                            'value' => isset($sweep_coup) ? count($sweep_coup) : 0,
-	                            'url'   => $item['url'],
-	                            'val'   => 2
-	                        ];
-	                        break;
-	                    case 4:
-	                        $shop_coup[]                               = $item;
-	                        $act_lists['to_do']['list'][$item['type']] = [
-	                            'title' => $item['title'],
-	                            'value' => isset($shop_coup) ? count($shop_coup) : 0,
-	                            'url'   => $item['url'],
-	                            'val'   => 2
-	                        ];
-	                        break;
-	                    case 5:
-	                        $crashes[]                                 = $item;
-	                        $act_lists['to_do']['list'][$item['type']] = [
-	                            'title' => $item['title'],
-	                            'value' => isset($crashes) ? count($crashes) : 0,
-	                            'url'   => $item['url'],
-	                            'val'   => 2
-	                        ];
-	                        break;
-	                    default:
-	                        break;
-	                }
-	            } else {
-	                /*
-	                 * if ($item['creator'] != $user_id) {
-	                 * continue;
-	                 * }
-	                 */
-	                $num[$item['type']][]                               = $item;
+	        	if ($item['status'] != 2) {
+	        		$num[$item['type']][]                               = $item;
 	                $act_lists['on_go']['data'][$item['type']]['value'] = count($num[$item['type']]);
 	                $act_lists['on_go']['data'][$item['type']]['val']   = 1;
-	            }
+
+	                continue;
+	        	}
+
+                if ($item['auditor'] != $user_id) {
+                    continue;
+                }
+
+                switch ($item['type']) {
+                    case 1:
+                        $markets[]                                 = $item;
+                        $act_lists['to_do']['list'][$item['type']] = [
+                            'title' => $item['title'],
+                            'value' => isset($markets) ? count($markets) : 0,
+                            'url'   => $item['url'],
+                            'val'   => 2
+                        ];
+                        break;
+                    case 2:
+                        $ech_coup[]                                = $item;
+                        $act_lists['to_do']['list'][$item['type']] = [
+                            'title' => $item['title'],
+                            'value' => isset($ech_coup) ? count($ech_coup) : 0,
+                            'url'   => $item['url'],
+                            'val'   => 2
+                        ];
+                        break;
+                    case 3:
+                        $sweep_coup[]                              = $item;
+                        $act_lists['to_do']['list'][$item['type']] = [
+                            'title' => $item['title'],
+                            'value' => isset($sweep_coup) ? count($sweep_coup) : 0,
+                            'url'   => $item['url'],
+                            'val'   => 2
+                        ];
+                        break;
+                    case 4:
+                        $shop_coup[]                               = $item;
+                        $act_lists['to_do']['list'][$item['type']] = [
+                            'title' => $item['title'],
+                            'value' => isset($shop_coup) ? count($shop_coup) : 0,
+                            'url'   => $item['url'],
+                            'val'   => 2
+                        ];
+                        break;
+                    case 5:
+                        $crashes[]                                 = $item;
+                        $act_lists['to_do']['list'][$item['type']] = [
+                            'title' => $item['title'],
+                            'value' => isset($crashes) ? count($crashes) : 0,
+                            'url'   => $item['url'],
+                            'val'   => 2
+                        ];
+                        break;
+                    default:
+                        break;
+                }
 	        }
     	}
 
