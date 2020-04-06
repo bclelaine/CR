@@ -2,8 +2,6 @@
 	// 获取首页数据
 	public function indexData()
 	{
-	    $user_id = static::$user['uid'];
-
 	    // 设置默认小数位
 	    bcscale(2);
 	    $data               = [];
@@ -17,76 +15,13 @@
 	    // 待办事项、营销活动默认数据
 	    $act_lists = $this->getActivityDefaultData();
 
-	    if (!empty($act_list)) {
-	        foreach ($act_list as $k => $item) {
-	            if ($item['status'] == 2) {
-	                if ($item['auditor'] != $user_id) {
-	                    continue;
-	                }
-	                switch ($item['type']) {
-	                    case 1:
-	                        $markets[]                                 = $item;
-	                        $act_lists['to_do']['list'][$item['type']] = [
-	                            'title' => $item['title'],
-	                            'value' => isset($markets) ? count($markets) : 0,
-	                            'url'   => $item['url'],
-	                            'val'   => 2
-	                        ];
-	                        break;
-	                    case 2:
-	                        $ech_coup[]                                = $item;
-	                        $act_lists['to_do']['list'][$item['type']] = [
-	                            'title' => $item['title'],
-	                            'value' => isset($ech_coup) ? count($ech_coup) : 0,
-	                            'url'   => $item['url'],
-	                            'val'   => 2
-	                        ];
-	                        break;
-	                    case 3:
-	                        $sweep_coup[]                              = $item;
-	                        $act_lists['to_do']['list'][$item['type']] = [
-	                            'title' => $item['title'],
-	                            'value' => isset($sweep_coup) ? count($sweep_coup) : 0,
-	                            'url'   => $item['url'],
-	                            'val'   => 2
-	                        ];
-	                        break;
-	                    case 4:
-	                        $shop_coup[]                               = $item;
-	                        $act_lists['to_do']['list'][$item['type']] = [
-	                            'title' => $item['title'],
-	                            'value' => isset($shop_coup) ? count($shop_coup) : 0,
-	                            'url'   => $item['url'],
-	                            'val'   => 2
-	                        ];
-	                        break;
-	                    case 5:
-	                        $crashes[]                                 = $item;
-	                        $act_lists['to_do']['list'][$item['type']] = [
-	                            'title' => $item['title'],
-	                            'value' => isset($crashes) ? count($crashes) : 0,
-	                            'url'   => $item['url'],
-	                            'val'   => 2
-	                        ];
-	                        break;
-	                    default:
-	                        break;
-	                }
-	            } else {
-	                /*
-	                 * if ($item['creator'] != $user_id) {
-	                 * continue;
-	                 * }
-	                 */
-	                $num[$item['type']][]                               = $item;
-	                $act_lists['on_go']['data'][$item['type']]['value'] = count($num[$item['type']]);
-	                $act_lists['on_go']['data'][$item['type']]['val']   = 1;
-	            }
-	        }
-	    }
-	    array_multisort($act_lists['to_do']['list']);
-	    $act_lists['to_do']['data'][0]['value'] = array_sum(array_column($act_lists['to_do']['list'], 'value'));
-	    array_multisort($act_lists['on_go']['data']);
+	    $merge_data = $this->getActivityMergeData($act_list, $act_lists);
+	    unset($act_list);
+	    unset($act_lists);
+
+	    array_multisort($merge_data['to_do']['list']);
+	    $merge_data['to_do']['data'][0]['value'] = array_sum(array_column($merge_data['to_do']['list'], 'value'));
+	    array_multisort($merge_data['on_go']['data']);
 
 	    // 公共时间范围
 	    $start_day = date('Y-m-d 00:00:00', strtotime("-30 day")); // 开始时间
@@ -161,7 +96,7 @@
 	    ];
 	    $income['echars'] = [];
 
-	    $data['body_box'] = array_merge($act_lists, [
+	    $data['body_box'] = array_merge($merge_data, [
 	        'income_condition' => $income,
 	    ]);
 	    $data['attrs']    = [];
@@ -366,4 +301,80 @@
 	            ]
 	        ]
 	    ];
+	}
+
+	// 合并所有活动数据（待审核活动、营销活动）
+	public function getActivityMergeData($act_list, $act_lists)
+	{
+	    $user_id = static::$user['uid'];
+
+		if (!empty($act_list)) {
+	        foreach ($act_list as $k => $item) {
+	            if ($item['status'] == 2) {
+	                if ($item['auditor'] != $user_id) {
+	                    continue;
+	                }
+	                switch ($item['type']) {
+	                    case 1:
+	                        $markets[]                                 = $item;
+	                        $act_lists['to_do']['list'][$item['type']] = [
+	                            'title' => $item['title'],
+	                            'value' => isset($markets) ? count($markets) : 0,
+	                            'url'   => $item['url'],
+	                            'val'   => 2
+	                        ];
+	                        break;
+	                    case 2:
+	                        $ech_coup[]                                = $item;
+	                        $act_lists['to_do']['list'][$item['type']] = [
+	                            'title' => $item['title'],
+	                            'value' => isset($ech_coup) ? count($ech_coup) : 0,
+	                            'url'   => $item['url'],
+	                            'val'   => 2
+	                        ];
+	                        break;
+	                    case 3:
+	                        $sweep_coup[]                              = $item;
+	                        $act_lists['to_do']['list'][$item['type']] = [
+	                            'title' => $item['title'],
+	                            'value' => isset($sweep_coup) ? count($sweep_coup) : 0,
+	                            'url'   => $item['url'],
+	                            'val'   => 2
+	                        ];
+	                        break;
+	                    case 4:
+	                        $shop_coup[]                               = $item;
+	                        $act_lists['to_do']['list'][$item['type']] = [
+	                            'title' => $item['title'],
+	                            'value' => isset($shop_coup) ? count($shop_coup) : 0,
+	                            'url'   => $item['url'],
+	                            'val'   => 2
+	                        ];
+	                        break;
+	                    case 5:
+	                        $crashes[]                                 = $item;
+	                        $act_lists['to_do']['list'][$item['type']] = [
+	                            'title' => $item['title'],
+	                            'value' => isset($crashes) ? count($crashes) : 0,
+	                            'url'   => $item['url'],
+	                            'val'   => 2
+	                        ];
+	                        break;
+	                    default:
+	                        break;
+	                }
+	            } else {
+	                /*
+	                 * if ($item['creator'] != $user_id) {
+	                 * continue;
+	                 * }
+	                 */
+	                $num[$item['type']][]                               = $item;
+	                $act_lists['on_go']['data'][$item['type']]['value'] = count($num[$item['type']]);
+	                $act_lists['on_go']['data'][$item['type']]['val']   = 1;
+	            }
+	        }
+    	}
+
+        return $act_lists;
 	}
