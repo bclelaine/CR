@@ -5,19 +5,13 @@
 	    // 设置默认小数位
 	    bcscale(2);
 
-	    $data['header_box'] = [
-	        'title' => lang('home_page')
-	    ];
+	    // 待办事项、营销活动默认数据
+	    $default_data = $this->getActivityDefaultData();
 
 	    // 活动列表
 	    $act_list = $this->getActivityList();
 
-	    // 待办事项、营销活动默认数据
-	    $default_data = $this->getActivityDefaultData();
-
 	    $merge_data = $this->getActivityMergeData($act_list, $default_data);
-	    unset($act_list);
-	    unset($default_data);
 
 	    array_multisort($merge_data['to_do']['list']);
 	    $merge_data['to_do']['data'][0]['value'] = array_sum(array_column($merge_data['to_do']['list'], 'value'));
@@ -26,12 +20,15 @@
 	    // 收入情况
 	    $income = $this->getIncomeData();
 
-	    $data['body_box'] = array_merge($merge_data, [
-	        'income_condition' => $income,
-	    ]);
-	    $data['attrs']    = [];
-
-	    return $data;
+	    return [
+	    	'header_box' => [
+		        'title'  => lang('home_page')
+		    ],
+		    'body_box'   => array_merge($merge_data, [
+		        'income_condition' => $income,
+		    ]),
+		    'attrs'      => []
+	    ];
 	}
 
 	// 获取活动列表数据
